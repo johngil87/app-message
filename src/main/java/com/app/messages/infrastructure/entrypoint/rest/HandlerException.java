@@ -1,6 +1,7 @@
 package com.app.messages.infrastructure.entrypoint.rest;
 
 import com.app.messages.domain.model.exception.MessageError;
+import com.app.messages.infrastructure.helpers.log.UtilLogger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.orm.jpa.JpaSystemException;
@@ -22,6 +23,7 @@ public class HandlerException {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(WebExchangeBindException.class)
     public ResponseEntity<MessageError> webExchangeBindException(WebExchangeBindException e) {
+        UtilLogger.info(HandlerException.class, "Ha ocurrido un error: {}", e.getMessage());
         messageError = MessageError.builder().message(e.getMessage()).build();
         return new ResponseEntity<>(messageError, HttpStatus.BAD_REQUEST);
     }
@@ -34,6 +36,7 @@ public class HandlerException {
         ex.getBindingResult().getAllErrors().forEach((error) -> {
             String fieldName = ((FieldError) error).getField();
             String errorMessage = error.getDefaultMessage();
+            UtilLogger.info(HandlerException.class, "Error en validacion de datos de entrada : {}, en el campo {}", errorMessage, fieldName);
             errors.put(fieldName, errorMessage);
         });
         return new ResponseEntity<>(errors,HttpStatus.BAD_REQUEST);
@@ -42,6 +45,23 @@ public class HandlerException {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(JpaSystemException.class)
     public ResponseEntity<MessageError>jpaSystemException(JpaSystemException e) {
+        UtilLogger.info(HandlerException.class, "Ha ocurrido un error en capa de DB : {}", e.getMessage());
+        messageError = MessageError.builder().message(e.getMessage()).build();
+        return new ResponseEntity<>(messageError,HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(NullPointerException.class)
+    public ResponseEntity<MessageError>nullPointerException(JpaSystemException e) {
+        UtilLogger.info(HandlerException.class, "Ha ocurrido un error : {}", e.getMessage());
+        messageError = MessageError.builder().message(e.getMessage()).build();
+        return new ResponseEntity<>(messageError,HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<MessageError>exception(Exception e) {
+        UtilLogger.info(HandlerException.class, "Ha ocurrido un error : {}", e.getMessage());
         messageError = MessageError.builder().message(e.getMessage()).build();
         return new ResponseEntity<>(messageError,HttpStatus.INTERNAL_SERVER_ERROR);
     }

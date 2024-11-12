@@ -11,5 +11,5 @@ public class Message {
 
     private String IdMessage;
     private String messageDescription;
-    private Date actualDate;
+    private Date date;
 }

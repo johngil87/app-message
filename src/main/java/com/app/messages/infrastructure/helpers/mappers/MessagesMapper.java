@@ -9,7 +9,15 @@ public class MessagesMapper {
         MessageEntity entity = new MessageEntity();
         entity.setIdMessage(message.getIdMessage());
         entity.setMessage(message.getMessageDescription());
-        entity.setCreateDate(message.getActualDate());
+        entity.setCreateDate(message.getDate());
         return entity;
+    }
+
+    public static Message toObject(MessageEntity entity){
+        return Message.builder()
+                .messageDescription(entity.getMessage())
+                .date(entity.getCreateDate())
+                .IdMessage(entity.getIdMessage())
+                .build();
     }
 }
